@@ -1,0 +1,48 @@
+# --- Install kubectl ---
+curl.exe -LO "https://dl.k8s.io/release/v1.33.0/bin/windows/amd64/kubectl.exe"
+mv kubectl.exe C:\Windows\user
+kubectl version --client
+
+# --- Install Minikube ---
+curl.exe -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-windows-amd64.exe
+mv minikube-windows-amd64.exe C:\Windows\user\minikube.exe
+minikube version
+
+# --- Start Minikube with Docker driver ---
+$ minikube start --driver=docker --image-repository=registry.k8s.io
+$ minikube image load registry.k8s.io/k8s-minikube/storage-provisioner:v5
+
+kubectl get nodes --show-labels
+
+# --- Create nginx Pod (pod.yml) ---
+cat > pod.yml <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+EOF
+
+# --- Deploy pod ---
+kubectl apply -f pod.yml
+kubectl get pods -o wide
+
+# --- View logs ---
+kubectl logs nginx
+
+# --- Expose nginx service ---
+kubectl expose pod nginx --type=NodePort --port=80
+kubectl get svc
+
+# --- Open nginx in browser ---
+minikube service nginx
+
+# --- Useful commands ---
+minikube stop
+minikube delete
+minikube ssh
